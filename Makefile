@@ -1,25 +1,17 @@
-CFLAGS=-Wall -Wpedantic -O3
+CFLAGS=-Wall -Wpedantic -O3 -no-integrated-cpp -B$(PWD)
 
 SOURCE=test.c
-INTERMEDIATE=$(patsubst %.c,%.i,$(SOURCE))
-TEMP=$(patsubst %.c,%.tmp,$(SOURCE))
 OUTPUT=test
 
 all: $(OUTPUT)
 
-$(OUTPUT): $(INTERMEDIATE)
+$(OUTPUT):
 	$(CC) $(CFLAGS) $< -o $@
-
-$(INTERMEDIATE): $(TEMP)
-	php $< > $@
-
-$(TEMP): $(SOURCE)
-	$(CC) -E $< > $@
 
 .PHONY: clean run
 
 clean:
-	$(RM) -r $(OUTPUT) $(TEMP) $(INTERMEDIATE)
+	$(RM) -r $(OUTPUT)
 
 run: $(OUTPUT)
 	./$<

@@ -1,0 +1,44 @@
+#!/bin/sh
+
+PROG=$(basename "$0")
+
+echo ""
+echo "CUSTOM CC1 INVOKATION!"
+
+GCC_CCP=$(gcc -print-prog-name=$PROG)
+
+echo "[$PROG] original params"
+echo $@
+
+INPUT_FILE=$(echo "$@" | awk '{print $2}')
+INPUT_FILE_TRIM=$(basename $INPUT_FILE)
+OUTPUT_FILE=$(echo "$@" | awk '{print $(NF)}')
+
+
+echo "[$PROG] input file"
+echo $INPUT_FILE
+echo "[$PROG] input file trim"
+echo $INPUT_FILE_TRIM
+echo "[$PROG] output file"
+echo $OUTPUT_FILE
+
+TEMP_OUTPUT=_temp_output
+
+if [[ ! $INPUT_FILE = *.i ]]
+then
+	echo "[$PROG] Called php with $INPUT_FILE - $TEMP_OUTPUT"
+	php $INPUT_FILE > $TEMP_OUTPUT
+
+	REPLACE_PARAMS=$(echo "$@" | sed 's|'"$INPUT_FILE"'|'"$TEMP_OUTPUT"'|')
+
+	echo "[$PROG] replaced params"
+	echo $REPLACE_PARAMS
+
+	echo "[$PROG] Called cpp with $REPLACE_PARAMS"
+	$GCC_CCP $REPLACE_PARAMS
+else
+	echo "[$PROG] Called cpp with $@"
+	$GCC_CCP $@
+fi
+
+exit $?
